@@ -1,0 +1,49 @@
+{
+    "symbol": "WDO@N",
+    "timeframe": "t5",
+    "strategy": "pattern_rsi_trend",
+    "hours": [
+        10,
+        11,
+        12
+    ],
+    "hour_params": {
+        "10": {
+            "length_rsi": 7.0,
+            "rsi_low": 39.0,
+            "rsi_high": 78.0,
+            "position_type": "long",
+            "allowed_hours": [
+                10
+            ],
+            "tp": 26.0,
+            "sl": 19.6
+        },
+        "11": {
+            "length_rsi": 9.0,
+            "rsi_low": 34.0,
+            "rsi_high": 81.0,
+            "position_type": "both",
+            "allowed_hours": [
+                11
+            ],
+            "tp": 17.200000000000003,
+            "sl": 5.1
+        },
+        "12": {
+            "length_rsi": 10.0,
+            "rsi_low": 44.0,
+            "rsi_high": 85.0,
+            "position_type": "long",
+            "allowed_hours": [
+                12
+            ],
+            "tp": 17.0,
+            "sl": 8.9
+        }
+    },
+    "tc": 1.2,
+    "valor_lote": 10.0,
+    "optimize_metric": "sortino_ratio",
+    "direction": "maximize"
+}
