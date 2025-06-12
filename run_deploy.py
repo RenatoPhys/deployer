@@ -16,7 +16,7 @@ df_params = pd.read_json('combied_stategy.json')
 trader = TraderClass(
     symbol= sym, 
     timeframe= mt5.TIMEFRAME_M5,
-    nome_estrategia = name_strategy
+    nome_estrategia = name_strategy,
     strategy_func=entry,
     strategy_params={
         "length_rsi": LENGTH_RSI,
