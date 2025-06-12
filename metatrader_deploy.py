@@ -6,15 +6,18 @@ import MetaTrader5 as mt5
 import time
 import pandas_ta as ta
 import talib
+from dotenv import load_dotenv
+import os
 
 
 ## Fazendo o login no mt5
 
 # Rico - demo
-name = 1234552
-key = 'senha'
-serv = 'Rico-DEMO'
-path = r"C:\Program Files\MetaTrader 5\terminal64.exe"
+load_dotenv()
+name = int(os.getenv("MT5_LOGIN"))
+key = os.getenv("MT5_PASSWORD")
+serv = os.getenv("MT5_SERVER")
+path = os.getenv("MT5_PATH")
 
 
 # establish MetaTrader 5 connection to a specified trading account

@@ -3,11 +3,12 @@ import importlib
 import MetaTrader5 as mt5
 from datetime import datetime
 from metatrader_deploy import TraderClass
+import json
 
 # Carregar parâmetros do JSON
 with open("combined_strategy.json", "r") as f:
-    config = pd.read_json(f)
-
+    config = json.load(f)
+    
 # Hora atual
 current_hour = datetime.now().hour
 
