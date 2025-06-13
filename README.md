@@ -151,22 +151,33 @@ deployer/
 │   ├── strategies/        # Estratégias de trading
 │   │   ├── __init__.py
 │   │   └── entries.py
-│   ├── config/           # Gerenciamento de configurações
+│   ├── config/           # Módulo de configuração (código Python)
 │   │   ├── __init__.py
-│   │   └── loader.py
+│   │   └── loader.py     # Carregador de configurações
 │   └── utils/            # Utilitários
 │       ├── __init__.py
 │       └── logger.py
-├── examples/             # Exemplos de uso
-│   ├── combined_strategy.json
-│   └── run_example.py
+├── examples/             # Exemplos de uso e configurações
+│   ├── combined_strategy.json    # Exemplo de configuração
+│   ├── run_example.py           # Script de exemplo
+│   └── create_config.py         # Criar nova configuração
+├── configs/              # Suas configurações pessoais (opcional)
+│   └── my_strategy.json
 ├── logs/                 # Arquivos de log (criado automaticamente)
 ├── tests/                # Testes unitários
+├── .env                  # Suas credenciais (não committar!)
 ├── .env.example          # Exemplo de configuração
 ├── requirements.txt      # Dependências
 ├── setup.py             # Configuração do pacote
 └── README.md            # Este arquivo
 ```
+
+### Organização dos Arquivos
+
+- **`deployer/`**: Código fonte do pacote
+- **`examples/`**: Exemplos e templates de configuração
+- **`configs/`**: Suas configurações pessoais (crie esta pasta para suas estratégias)
+- **`logs/`**: Logs de execução (criado automaticamente)
 
 ## 🔧 Configurações Avançadas
 

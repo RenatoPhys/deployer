@@ -1,0 +1,39 @@
+2025-06-13 13:09:53 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:09:55 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:09:55 - Main - INFO - Carregando configuração de combined_strategy.json...
+2025-06-13 13:09:55 - Main - ERROR - Erro fatal: Arquivo de configuração não encontrado: combined_strategy.json
+Traceback (most recent call last):
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\run_example.py", line 71, in main
+    config_manager = ConfigManager(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 144, in __init__
+    self.config = ConfigLoader.load_strategy_config(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 55, in load_strategy_config
+    raise FileNotFoundError(f"Arquivo de configuração não encontrado: {filepath}")
+FileNotFoundError: Arquivo de configuração não encontrado: combined_strategy.json
+2025-06-13 13:09:55 - Main - INFO - Conexão MT5 encerrada
+2025-06-13 13:18:42 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:18:42 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:18:42 - Main - INFO - Carregando configuração de combined_strategy.json...
+2025-06-13 13:18:42 - Main - ERROR - Erro fatal: [Errno 2] No such file or directory: 'combined_strategy.json'
+Traceback (most recent call last):
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\run_example.py", line 71, in main
+    config_manager = ConfigManager(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 144, in __init__
+    self.config = ConfigLoader.load_strategy_config(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 57, in load_strategy_config
+    with open(filepath, 'r', encoding='utf-8') as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'combined_strategy.json'
+2025-06-13 13:18:42 - Main - INFO - Conexão MT5 encerrada
+2025-06-13 13:18:52 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:18:52 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:18:52 - Main - INFO - Carregando configuração de combined_strategy.json...
+2025-06-13 13:18:52 - Main - ERROR - Erro fatal: [Errno 2] No such file or directory: 'combined_strategy.json'
+Traceback (most recent call last):
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\run_example.py", line 71, in main
+    config_manager = ConfigManager(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 144, in __init__
+    self.config = ConfigLoader.load_strategy_config(config_path)
+  File "c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\deployer\config\loader.py", line 57, in load_strategy_config
+    with open(filepath, 'r', encoding='utf-8') as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'combined_strategy.json'
+2025-06-13 13:18:52 - Main - INFO - Conexão MT5 encerrada

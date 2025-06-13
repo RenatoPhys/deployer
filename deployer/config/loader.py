@@ -51,8 +51,8 @@ class ConfigLoader:
             FileNotFoundError: Se o arquivo não existir
             ValueError: Se a configuração for inválida
         """
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"Arquivo de configuração não encontrado: {filepath}")
+        #if not os.path.exists(filepath):
+        #    raise FileNotFoundError(f"Arquivo de configuração não encontrado: {filepath}")
         
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)

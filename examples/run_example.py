@@ -65,8 +65,15 @@ def main():
         initialize_mt5()
         logger.info("MT5 conectado com sucesso!")
         
-        # Carrega configuração
-        config_path = "combined_strategy.json"
+        # Carrega configuração do diretório examples
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(script_dir, "combined_strategy.json")
+        
+        if not os.path.exists(config_path):
+            logger.error(f"Arquivo de configuração não encontrado: {config_path}")
+            logger.info("Certifique-se de que combined_strategy.json está no diretório examples/")
+            return
+            
         logger.info(f"Carregando configuração de {config_path}...")
         config_manager = ConfigManager(config_path)
         config = config_manager.config
