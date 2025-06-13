@@ -1,0 +1,32 @@
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - Iniciando trading - 2025-06-13 13:31:59
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - Símbolo: WIN@N | Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - Balance: 350.00 | Equity: 350.00 | Profit: 0.00
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - Dados históricos carregados: 279 barras
+2025-06-13 13:31:59 - AlgoTrader_WIN@N - INFO - Trading ativo até 17:54:00
+2025-06-13 13:32:00 - AlgoTrader_WIN@N - ERROR - Erro no streaming: 'DataFrame' object has no attribute 'ta'
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - Iniciando trading - 2025-06-13 13:41:44
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - Símbolo: WIN@N | Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - Balance: 350.00 | Equity: 350.00 | Profit: 0.00
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - Dados históricos carregados: 279 barras
+2025-06-13 13:41:44 - AlgoTrader_WIN@N - INFO - Trading ativo até 17:54:00
+2025-06-13 13:41:45 - AlgoTrader_WIN@N - ERROR - Erro no streaming: 'DataFrame' object has no attribute 'ta'
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - Iniciando trading - 2025-06-13 13:45:27
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - Símbolo: WIN@N | Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - Balance: 350.00 | Equity: 350.00 | Profit: 0.00
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - Dados históricos carregados: 279 barras
+2025-06-13 13:45:27 - AlgoTrader_WIN@N - INFO - Trading ativo até 17:54:00
+2025-06-13 13:45:28 - AlgoTrader_WIN@N - ERROR - Erro no streaming: 'DataFrame' object has no attribute 'ta'
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - Iniciando trading - 2025-06-13 13:46:57
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - Símbolo: WIN@N | Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - Balance: 350.00 | Equity: 350.00 | Profit: 0.00
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - ----------------------------------------------------------------------
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - Dados históricos carregados: 279 barras
+2025-06-13 13:46:57 - AlgoTrader_WIN@N - INFO - Trading ativo até 17:54:00
+2025-06-13 13:46:58 - AlgoTrader_WIN@N - ERROR - Erro no streaming: 'DataFrame' object has no attribute 'ta'

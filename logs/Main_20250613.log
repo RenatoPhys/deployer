@@ -37,3 +37,67 @@ Traceback (most recent call last):
     with open(filepath, 'r', encoding='utf-8') as f:
 FileNotFoundError: [Errno 2] No such file or directory: 'combined_strategy.json'
 2025-06-13 13:18:52 - Main - INFO - Conexão MT5 encerrada
+2025-06-13 13:31:57 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:31:59 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:31:59 - Main - INFO - Carregando configuração de c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\combined_strategy.json...
+2025-06-13 13:31:59 - Main - INFO - Hora atual: 13h
+2025-06-13 13:31:59 - Main - INFO - Carregando estratégia: pattern_rsi_trend
+2025-06-13 13:31:59 - Main - INFO - ============================================================
+2025-06-13 13:31:59 - Main - INFO - CONFIGURAÇÕES DE TRADING
+2025-06-13 13:31:59 - Main - INFO - Símbolo: WIN@N
+2025-06-13 13:31:59 - Main - INFO - Timeframe: t5
+2025-06-13 13:31:59 - Main - INFO - Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:31:59 - Main - INFO - Position Type: long
+2025-06-13 13:31:59 - Main - INFO - Take Profit: 1040 pontos
+2025-06-13 13:31:59 - Main - INFO - Stop Loss: 1720 pontos
+2025-06-13 13:31:59 - Main - INFO - Lote: 0.2
+2025-06-13 13:31:59 - Main - INFO - ============================================================
+2025-06-13 13:31:59 - Main - INFO - Iniciando sistema de trading automatizado...
+2025-06-13 13:41:42 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:41:44 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:41:44 - Main - INFO - Carregando configuração de c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\combined_strategy.json...
+2025-06-13 13:41:44 - Main - INFO - Hora atual: 13h
+2025-06-13 13:41:44 - Main - INFO - Carregando estratégia: pattern_rsi_trend
+2025-06-13 13:41:44 - Main - INFO - ============================================================
+2025-06-13 13:41:44 - Main - INFO - CONFIGURAÇÕES DE TRADING
+2025-06-13 13:41:44 - Main - INFO - Símbolo: WIN@N
+2025-06-13 13:41:44 - Main - INFO - Timeframe: t5
+2025-06-13 13:41:44 - Main - INFO - Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:41:44 - Main - INFO - Position Type: long
+2025-06-13 13:41:44 - Main - INFO - Take Profit: 1040 pontos
+2025-06-13 13:41:44 - Main - INFO - Stop Loss: 1720 pontos
+2025-06-13 13:41:44 - Main - INFO - Lote: 0.2
+2025-06-13 13:41:44 - Main - INFO - ============================================================
+2025-06-13 13:41:44 - Main - INFO - Iniciando sistema de trading automatizado...
+2025-06-13 13:45:25 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:45:27 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:45:27 - Main - INFO - Carregando configuração de c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\combined_strategy.json...
+2025-06-13 13:45:27 - Main - INFO - Hora atual: 13h
+2025-06-13 13:45:27 - Main - INFO - Carregando estratégia: pattern_rsi_trend
+2025-06-13 13:45:27 - Main - INFO - ============================================================
+2025-06-13 13:45:27 - Main - INFO - CONFIGURAÇÕES DE TRADING
+2025-06-13 13:45:27 - Main - INFO - Símbolo: WIN@N
+2025-06-13 13:45:27 - Main - INFO - Timeframe: t5
+2025-06-13 13:45:27 - Main - INFO - Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:45:27 - Main - INFO - Position Type: long
+2025-06-13 13:45:27 - Main - INFO - Take Profit: 1040 pontos
+2025-06-13 13:45:27 - Main - INFO - Stop Loss: 1720 pontos
+2025-06-13 13:45:27 - Main - INFO - Lote: 0.2
+2025-06-13 13:45:27 - Main - INFO - ============================================================
+2025-06-13 13:45:27 - Main - INFO - Iniciando sistema de trading automatizado...
+2025-06-13 13:46:55 - Main - INFO - Inicializando conexão com MetaTrader 5...
+2025-06-13 13:46:57 - Main - INFO - MT5 conectado com sucesso!
+2025-06-13 13:46:57 - Main - INFO - Carregando configuração de c:\Users\User\OneDrive\Documentos\rnt\Finance\Trading Projects\deployer\examples\combined_strategy.json...
+2025-06-13 13:46:57 - Main - INFO - Hora atual: 13h
+2025-06-13 13:46:57 - Main - INFO - Carregando estratégia: pattern_rsi_trend
+2025-06-13 13:46:57 - Main - INFO - ============================================================
+2025-06-13 13:46:57 - Main - INFO - CONFIGURAÇÕES DE TRADING
+2025-06-13 13:46:57 - Main - INFO - Símbolo: WIN@N
+2025-06-13 13:46:57 - Main - INFO - Timeframe: t5
+2025-06-13 13:46:57 - Main - INFO - Estratégia: pattern_rsi_trend_13h
+2025-06-13 13:46:57 - Main - INFO - Position Type: long
+2025-06-13 13:46:57 - Main - INFO - Take Profit: 1040 pontos
+2025-06-13 13:46:57 - Main - INFO - Stop Loss: 1720 pontos
+2025-06-13 13:46:57 - Main - INFO - Lote: 0.2
+2025-06-13 13:46:57 - Main - INFO - ============================================================
+2025-06-13 13:46:57 - Main - INFO - Iniciando sistema de trading automatizado...

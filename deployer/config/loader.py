@@ -17,10 +17,7 @@ class StrategyConfig:
     strategy: str
     hours: List[int]
     hour_params: Dict[int, Dict[str, Any]]
-    tc: float = 1.0
-    valor_lote: float = 0.2
-    optimize_metric: str = "sharpe_ratio"
-    direction: str = "maximize"
+    valor_lote: float
 
 
 class ConfigLoader:
@@ -51,8 +48,8 @@ class ConfigLoader:
             FileNotFoundError: Se o arquivo não existir
             ValueError: Se a configuração for inválida
         """
-        #if not os.path.exists(filepath):
-        #    raise FileNotFoundError(f"Arquivo de configuração não encontrado: {filepath}")
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Arquivo de configuração não encontrado: {filepath}")
         
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -72,10 +69,7 @@ class ConfigLoader:
             strategy=data['strategy'],
             hours=data['hours'],
             hour_params=hour_params,
-            tc=data.get('tc', 1.0),
-            valor_lote=data.get('valor_lote', 0.2),
-            optimize_metric=data.get('optimize_metric', 'sharpe_ratio'),
-            direction=data.get('direction', 'maximize')
+            valor_lote=data.get('valor_lote', 1.0),
         )
     
     @classmethod
