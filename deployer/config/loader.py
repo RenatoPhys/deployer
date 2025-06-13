@@ -17,7 +17,7 @@ class StrategyConfig:
     strategy: str
     hours: List[int]
     hour_params: Dict[int, Dict[str, Any]]
-    valor_lote: float
+    lote: float
 
 
 class ConfigLoader:
@@ -69,7 +69,7 @@ class ConfigLoader:
             strategy=data['strategy'],
             hours=data['hours'],
             hour_params=hour_params,
-            valor_lote=data.get('valor_lote', 1.0),
+            lote=data.get('lote', 1.0),
         )
     
     @classmethod
@@ -173,6 +173,6 @@ class ConfigManager:
             'symbol': self.config.symbol,
             'strategy': self.config.strategy,
             'trading_hours': sorted(self.config.hours),
-            'lot_size': self.config.valor_lote,
+            'lot_size': self.config.lote,
             'total_hours': len(self.config.hours)
         }
