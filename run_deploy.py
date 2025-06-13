@@ -32,8 +32,8 @@ sl_value = hour_config["sl"]  # Pega diretamente do JSON
 
 # Inicializa a classe TraderClass
 trader = TraderClass(
-    symbol=config['symbol'],
-    timeframe=mt5.TIMEFRAME_M5 if config['timeframe'] == 't5' else mt5.TIMEFRAME_M1,
+    symbol='WINM25',
+    timeframe=mt5.TIMEFRAME_M1 if config['timeframe'] == 't5' else mt5.TIMEFRAME_M1,
     nome_estrategia=f"{strategy_name}_{current_hour}h",
     strategy_func=strategy_func,
     strategy_params={

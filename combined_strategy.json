@@ -1,49 +1,121 @@
 {
-    "symbol": "WDO@N",
+    "symbol": "WIN@N",
     "timeframe": "t5",
     "strategy": "pattern_rsi_trend",
     "hours": [
+        9,
         10,
         11,
-        12
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
     ],
     "hour_params": {
-        "10": {
-            "length_rsi": 7.0,
-            "rsi_low": 39.0,
-            "rsi_high": 78.0,
-            "position_type": "long",
+        "9": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "short",
             "allowed_hours": [
                 10
             ],
-            "tp": 26.0,
-            "sl": 19.6
+            "tp": 1445,
+            "sl": 200
+        },
+        "10": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "short",
+            "allowed_hours": [
+                10
+            ],
+            "tp": 1440,
+            "sl": 203
         },
         "11": {
-            "length_rsi": 9.0,
-            "rsi_low": 34.0,
-            "rsi_high": 81.0,
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
             "position_type": "both",
             "allowed_hours": [
                 11
             ],
-            "tp": 17.200000000000003,
-            "sl": 5.1
+            "tp": 1250,
+            "sl": 415
         },
         "12": {
-            "length_rsi": 10.0,
-            "rsi_low": 44.0,
-            "rsi_high": 85.0,
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
             "position_type": "long",
             "allowed_hours": [
                 12
             ],
-            "tp": 17.0,
-            "sl": 8.9
+            "tp": 1580,
+            "sl": 425
+        },
+        "13": {
+            "length_rsi": 8.0,
+            "rsi_low": 36.0,
+            "rsi_high": 63.0,
+            "position_type": "long",
+            "allowed_hours": [
+                13
+            ],
+            "tp": 1040,
+            "sl": 1720
+        },
+        "14": {
+            "length_rsi": 8.0,
+            "rsi_low": 35.0,
+            "rsi_high": 74.0,
+            "position_type": "both",
+            "allowed_hours": [
+                14
+            ],
+            "tp": 1720,
+            "sl": 140
+        },
+        "15": {
+            "length_rsi": 8.0,
+            "rsi_low": 25.0,
+            "rsi_high": 67.0,
+            "position_type": "both",
+            "allowed_hours": [
+                15
+            ],
+            "tp": 1870,
+            "sl": 715
+        },
+        "16": {
+            "length_rsi": 8.0,
+            "rsi_low": 34.0,
+            "rsi_high": 80.0,
+            "position_type": "both",
+            "allowed_hours": [
+                16
+            ],
+            "tp": 882.0,
+            "sl": 265.3
+        },
+        "17": {
+            "length_rsi": 8.0,
+            "rsi_low": 26.0,
+            "rsi_high": 60.0,
+            "position_type": "both",
+            "allowed_hours": [
+                17
+            ],
+            "tp": 1456.9,
+            "sl": 121.80000000000001
         }
     },
-    "tc": 1.2,
-    "valor_lote": 10.0,
-    "optimize_metric": "sortino_ratio",
+    "tc": 1.0,
+    "valor_lote": 0.2,
+    "optimize_metric": "sharpe_ratio",
     "direction": "maximize"
 }

@@ -100,6 +100,8 @@ class TraderClass():
         df.drop(df.tail(1).index,inplace=True)
         
         self.data = df
+
+        print(self.data.head())
         
     def stream_candles(self):
         ''' Função para fazer o live stream dos dados e realizar os trades '''
@@ -125,9 +127,16 @@ class TraderClass():
 
             # Se temos mais um ponto nos dados, é hora de fazer o trade! (ou não)
             if df.index[0] > self.data.index[-1]:
-                self.data.loc[df.index[0]] = [df['open'][0], df['high'][0], 
-                                             df['low'][0], df['close'][0], 
-                                              df['tick_volume'][0], df['spread'][0],df['volume'][0]]
+                # CORREÇÃO 1: Usar .iloc[] para acesso posicional
+                self.data.loc[df.index[0]] = [
+                    df['open'].iloc[0], 
+                    df['high'].iloc[0], 
+                    df['low'].iloc[0], 
+                    df['close'].iloc[0], 
+                    df['tick_volume'].iloc[0], 
+                    df['spread'].iloc[0],
+                    df['volume'].iloc[0]
+                ]
 
                 # prepare features and define strategy/trading positions whenever the latest bar is complete
                 self.define_strategy()
@@ -193,12 +202,19 @@ class TraderClass():
         
         df = self.data.copy()
         
-        # Aplica a função de estratégia fornecida
-        df = self.strategy_func(df, **self.strategy_params)
+        # CORREÇÃO 2: A função de estratégia retorna uma Series, não DataFrame
+        positions = self.strategy_func(df, **self.strategy_params)
         
-        # Garantimos que sempre temos uma coluna 'position'
-        if 'position' not in df.columns:
-            raise ValueError("A função de estratégia deve retornar um DataFrame com a coluna 'position'")
+        # Verifica se retornou uma Series (posições)
+        if isinstance(positions, pd.Series):
+            # Adiciona as posições ao DataFrame
+            df['position'] = positions
+        else:
+            # Se a função retornar um DataFrame, usa diretamente
+            df = positions
+            # Garantimos que sempre temos uma coluna 'position'
+            if 'position' not in df.columns:
+                raise ValueError("A função de estratégia deve retornar um DataFrame com a coluna 'position' ou uma Series com as posições")
         
         # We exit all our positions in the end of the trading's time
         df.loc[(df.index.to_series().dt.hour >= 18), 'position'] = 0
