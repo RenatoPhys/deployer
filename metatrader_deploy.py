@@ -36,7 +36,7 @@ class TraderClass():
      Classe que inicializa, gerencia e reporta os trades.
     '''
     
-    def __init__(self, symbol, timeframe, nome_estrategia, strategy_func=None, strategy_params=None):
+    def __init__(self, symbol, timeframe, nome_estrategia, strategy_func=None, strategy_params=None, tp=None, sl=None):
         
         '''     
         Para inicialiar, precisamos dos seguintes inputs:
@@ -44,6 +44,8 @@ class TraderClass():
         timeframe = granularidade temporal
         strategy_func = função que define a estratégia de entrada/saída
         strategy_params = parâmetros específicos da estratégia
+        tp = take profit (pode ser um valor fixo ou dicionário por hora)
+        sl = stop loss (pode ser um valor fixo ou dicionário por hora)
         '''
         
         self.symbol = symbol # símbolo do ativo
@@ -56,6 +58,10 @@ class TraderClass():
         self.timeframe = timeframe  # granularidade temporal
         self.strategy_func = strategy_func  # função da estratégia
         self.strategy_params = strategy_params or {}  # parâmetros da estratégia
+        
+        # Parâmetros de TP e SL
+        self.tp = tp
+        self.sl = sl
         
         # Validação da estratégia
         if self.strategy_func is None:
@@ -180,6 +186,8 @@ class TraderClass():
             
         return result
     
+
+    
     def define_strategy(self):
         ''' Função que aplica a estratégia modular '''
         
@@ -221,22 +229,21 @@ class TraderClass():
         # Definindo posiçao
         position_new = self.prepared_data["position"].iloc[-1]
         
-        # Dicionário de takeprofit e stoploss
-        tp_dict = {9: 1, 10:1500, 11:1500, 12:1, 13:1, 16:1500, 17:1500}
-        sl_dict = {9: 1, 10:400, 11:400, 12:1, 13:1, 16:400, 17:400}
-        hora = self.data.index[-1].hour
+        # Usa os valores de TP e SL passados como parâmetros
+        tp_value = self.tp 
+        sl_value = self.sl
         
         # Dicionário de quantidade de contrato por hora
         self.units = 1.0
         
         # Compra/Venda/Neutro
         if position_new == 1:
-            order = self.func_order(self.symbol, self.units, position_new, tp_dict[hora], sl_dict[hora])
+            order = self.func_order(self.symbol, self.units, position_new, tp_value, sl_value)
             self.report_trade(order, "GOING LONG")  
             self.quote_units = self.units * 1 * order.price
             self.position = 1
         elif position_new == -1: 
-            order = self.func_order(self.symbol, self.units, position_new, tp_dict[hora], sl_dict[hora])
+            order = self.func_order(self.symbol, self.units, position_new, tp_value, sl_value)
             self.report_trade(order, "GOING SHORT")
             self.quote_units = self.units * 1 * order.price
             self.position = -1

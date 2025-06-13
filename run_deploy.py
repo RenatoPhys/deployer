@@ -1,3 +1,4 @@
+
 import pandas as pd
 import importlib
 import MetaTrader5 as mt5
@@ -25,10 +26,14 @@ strategy_name = config['strategy']
 module = importlib.import_module("entries")
 strategy_func = getattr(module, strategy_name)
 
+# Pega os valores de TP e SL do JSON
+tp_value = hour_config["tp"]  # Pega diretamente do JSON
+sl_value = hour_config["sl"]  # Pega diretamente do JSON
+
 # Inicializa a classe TraderClass
 trader = TraderClass(
     symbol=config['symbol'],
-    timeframe=mt5.TIMEFRAME_M5 if config['timeframe'] == 't5' else mt5.TIMEFRAME_M1,  # pode expandir conforme necessário
+    timeframe=mt5.TIMEFRAME_M5 if config['timeframe'] == 't5' else mt5.TIMEFRAME_M1,
     nome_estrategia=f"{strategy_name}_{current_hour}h",
     strategy_func=strategy_func,
     strategy_params={
@@ -37,7 +42,9 @@ trader = TraderClass(
         "rsi_high": hour_config["rsi_high"],
         "allowed_hours": hour_config.get("allowed_hours", [current_hour]),
         "position_type": hour_config.get("position_type", "both"),
-    }
+    },
+    tp=tp_value,  # Novo parâmetro
+    sl=sl_value   # Novo parâmetro
 )
 
 # Começar trading
