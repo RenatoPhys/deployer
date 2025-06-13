@@ -116,7 +116,7 @@ def main():
         logger.info(f"Position Type: {hour_params['position_type']}")
         logger.info(f"Take Profit: {hour_params['tp']} pontos")
         logger.info(f"Stop Loss: {hour_params['sl']} pontos")
-        logger.info(f"Lote: {config.valor_lote}")
+        logger.info(f"Lote: {config.lote}")
         logger.info("=" * 60)
         
         # Obtém timeframe MT5
@@ -131,7 +131,7 @@ def main():
             strategy_params=strategy_params,
             tp=hour_params["tp"],
             sl=hour_params["sl"],
-            lot_size=config.valor_lote
+            lot_size=config.lote
         )
         
         # Inicia trading

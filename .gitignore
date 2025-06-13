@@ -37,3 +37,6 @@ coverage.xml
 # MetaTrader files
 *.ex5
 *.mq5
+
+# logs
+*.log
