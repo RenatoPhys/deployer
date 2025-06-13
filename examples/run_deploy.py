@@ -1,51 +1,145 @@
+"""
+Exemplo de execução do sistema de trading automatizado.
+"""
 
-import pandas as pd
+import sys
+import os
 import importlib
-import MetaTrader5 as mt5
 from datetime import datetime
-from metatrader_deploy import TraderClass
-import json
+from dotenv import load_dotenv
+import MetaTrader5 as mt5
 
-# Carregar parâmetros do JSON
-with open("combined_strategy.json", "r") as f:
-    config = json.load(f)
+# Adiciona o diretório pai ao path para importar o pacote deployer
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from deployer.trader import AlgoTrader
+from deployer.config.loader import ConfigManager, ConfigLoader
+from deployer.utils.logger import setup_logger
+
+
+def initialize_mt5():
+    """Inicializa conexão com MetaTrader 5."""
+    load_dotenv()
     
-# Hora atual
-current_hour = datetime.now().hour
+    login = int(os.getenv("MT5_LOGIN"))
+    password = os.getenv("MT5_PASSWORD")
+    server = os.getenv("MT5_SERVER")
+    path = os.getenv("MT5_PATH")
+    
+    if not all([login, password, server]):
+        raise ValueError("Credenciais MT5 não encontradas no arquivo .env")
+    
+    # Inicializa MT5
+    if not mt5.initialize(login=login, server=server, password=password, path=path):
+        raise RuntimeError(f"Falha ao inicializar MT5: {mt5.last_error()}")
+    
+    return True
 
-# Verifica se essa hora tem estratégia definida
-if current_hour not in config['hours']:
-    print(f"[{current_hour}h] Não há estratégia definida para este horário.")
-    exit()
 
-# Seleciona os parâmetros da hora atual
-hour_config = config['hour_params'][str(current_hour)]
+def load_strategy_function(strategy_name: str):
+    """
+    Carrega dinamicamente a função de estratégia.
+    
+    Args:
+        strategy_name: Nome da estratégia a carregar
+        
+    Returns:
+        Função da estratégia
+    """
+    try:
+        # Tenta importar do módulo de estratégias
+        module = importlib.import_module("deployer.strategies.entries")
+        strategy_func = getattr(module, strategy_name)
+        return strategy_func
+    except (ImportError, AttributeError) as e:
+        raise ImportError(f"Não foi possível carregar a estratégia '{strategy_name}': {str(e)}")
 
-# Importa a função de estratégia dinamicamente
-strategy_name = config['strategy']
-module = importlib.import_module("entries")
-strategy_func = getattr(module, strategy_name)
 
-# Pega os valores de TP e SL do JSON
-tp_value = hour_config["tp"]  # Pega diretamente do JSON
-sl_value = hour_config["sl"]  # Pega diretamente do JSON
+def main():
+    """Função principal de execução."""
+    logger = setup_logger("Main")
+    
+    try:
+        # Inicializa MT5
+        logger.info("Inicializando conexão com MetaTrader 5...")
+        initialize_mt5()
+        logger.info("MT5 conectado com sucesso!")
+        
+        # Carrega configuração
+        config_path = "combined_strategy.json"
+        logger.info(f"Carregando configuração de {config_path}...")
+        config_manager = ConfigManager(config_path)
+        config = config_manager.config
+        
+        # Verifica hora atual
+        current_hour = datetime.now().hour
+        logger.info(f"Hora atual: {current_hour}h")
+        
+        # Verifica se é hora de trading
+        if not config_manager.is_trading_hour():
+            logger.warning(f"Não há estratégia definida para {current_hour}h")
+            logger.info(f"Horas de trading disponíveis: {sorted(config.hours)}")
+            return
+        
+        # Obtém parâmetros da hora atual
+        hour_params = config_manager.get_current_hour_params()
+        if not hour_params:
+            logger.error("Erro ao obter parâmetros da hora atual")
+            return
+        
+        # Carrega função de estratégia
+        logger.info(f"Carregando estratégia: {config.strategy}")
+        strategy_func = load_strategy_function(config.strategy)
+        
+        # Prepara parâmetros da estratégia
+        strategy_params = {
+            "length_rsi": int(hour_params.get("length_rsi", 8)),
+            "rsi_low": hour_params.get("rsi_low", 30),
+            "rsi_high": hour_params.get("rsi_high", 70),
+            "allowed_hours": hour_params.get("allowed_hours", [current_hour]),
+            "position_type": hour_params.get("position_type", "both"),
+        }
+        
+        # Log de configurações
+        logger.info("=" * 60)
+        logger.info("CONFIGURAÇÕES DE TRADING")
+        logger.info(f"Símbolo: {config.symbol}")
+        logger.info(f"Timeframe: {config.timeframe}")
+        logger.info(f"Estratégia: {config.strategy}_{current_hour}h")
+        logger.info(f"Position Type: {hour_params['position_type']}")
+        logger.info(f"Take Profit: {hour_params['tp']} pontos")
+        logger.info(f"Stop Loss: {hour_params['sl']} pontos")
+        logger.info(f"Lote: {config.valor_lote}")
+        logger.info("=" * 60)
+        
+        # Obtém timeframe MT5
+        mt5_timeframe = ConfigLoader.get_mt5_timeframe(config.timeframe)
+        
+        # Inicializa trader
+        trader = AlgoTrader(
+            symbol=config.symbol,
+            timeframe=mt5_timeframe,
+            strategy_name=f"{config.strategy}_{current_hour}h",
+            strategy_func=strategy_func,
+            strategy_params=strategy_params,
+            tp=hour_params["tp"],
+            sl=hour_params["sl"],
+            lot_size=config.valor_lote
+        )
+        
+        # Inicia trading
+        logger.info("Iniciando sistema de trading automatizado...")
+        trader.start_trading()
+        
+    except KeyboardInterrupt:
+        logger.info("Trading interrompido pelo usuário")
+    except Exception as e:
+        logger.error(f"Erro fatal: {str(e)}", exc_info=True)
+    finally:
+        # Desconecta do MT5
+        mt5.shutdown()
+        logger.info("Conexão MT5 encerrada")
 
-# Inicializa a classe TraderClass
-trader = TraderClass(
-    symbol='WINM25',
-    timeframe=mt5.TIMEFRAME_M1 if config['timeframe'] == 't5' else mt5.TIMEFRAME_M1,
-    nome_estrategia=f"{strategy_name}_{current_hour}h",
-    strategy_func=strategy_func,
-    strategy_params={
-        "length_rsi": int(hour_config["length_rsi"]),
-        "rsi_low": hour_config["rsi_low"],
-        "rsi_high": hour_config["rsi_high"],
-        "allowed_hours": hour_config.get("allowed_hours", [current_hour]),
-        "position_type": hour_config.get("position_type", "both"),
-    },
-    tp=tp_value,  # Novo parâmetro
-    sl=sl_value   # Novo parâmetro
-)
 
-# Começar trading
-trader.start_trading()
+if __name__ == "__main__":
+    main()
