@@ -40,3 +40,6 @@ coverage.xml
 
 # logs
 *.log
+
+# Package
+*.egg-info
