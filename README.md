@@ -250,10 +250,4 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ## 👤 Autor
 
-Renato - [GitHub](https://github.com/seu_usuario)
-
-## 🙏 Agradecimentos
-
-- MetaTrader 5 pela plataforma
-- Comunidade Python por bibliotecas excelentes
-- Todos os contribuidores do projeto
+Renato Critelli - [GitHub](https://github.com/RenatoPhys)
