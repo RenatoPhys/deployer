@@ -1,5 +1,6 @@
 """
 Módulo principal do trader para execução de estratégias de algo trading.
+Versão melhorada com inicialização automática do MT5.
 """
 
 import numpy as np
@@ -7,7 +8,10 @@ import datetime as dt
 import pandas as pd
 import MetaTrader5 as mt5
 import time
+import os
+from pathlib import Path
 from typing import Callable, Dict, Optional, Union
+from dotenv import load_dotenv
 from .utils.logger import setup_logger
 
 
@@ -35,7 +39,9 @@ class AlgoTrader:
         tp: Optional[float] = None, 
         sl: Optional[float] = None,
         lot_size: float = 1.0,
-        magic_number: int = 2
+        magic_number: int = 2,
+        auto_connect: bool = True,
+        env_path: Optional[str] = None
     ):
         # Configurações básicas
         self.symbol = symbol
@@ -54,13 +60,145 @@ class AlgoTrader:
         self.trades = 0
         self.trade_values = []
         self.quote_units = 0
+        self.mt5_connected = False
         
         # Logger
         self.logger = setup_logger(f"AlgoTrader_{symbol}")
         
+        # Carrega variáveis de ambiente
+        self._load_environment(env_path)
+        
+        # Conecta automaticamente se solicitado
+        if auto_connect:
+            self.connect_mt5()
+        
         # Validações
         self._validate_parameters()
+    
+    def _load_environment(self, env_path: Optional[str] = None):
+        """
+        Carrega variáveis de ambiente do arquivo .env.
         
+        Args:
+            env_path: Caminho específico para o .env (opcional)
+        """
+        if env_path and Path(env_path).exists():
+            load_dotenv(env_path)
+            self.logger.info(f"Variáveis carregadas de: {env_path}")
+            return
+        
+        # Procura .env em locais comuns
+        search_paths = [
+            Path.cwd(),                                    # Diretório atual
+            Path(__file__).parent,                         # Diretório do módulo
+            Path(__file__).parent.parent,                  # Diretório pai do projeto
+            Path(__file__).parent.parent.parent,           # Diretório raiz
+            Path.home(),                                   # Diretório home
+        ]
+        
+        for path in search_paths:
+            env_file = path / ".env"
+            if env_file.exists():
+                load_dotenv(env_file)
+                self.logger.info(f"Arquivo .env encontrado em: {env_file}")
+                return
+        
+        self.logger.warning("Arquivo .env não encontrado nos locais padrão")
+    
+    def connect_mt5(self, 
+                   login: Optional[int] = None,
+                   password: Optional[str] = None, 
+                   server: Optional[str] = None,
+                   path: Optional[str] = None) -> bool:
+        """
+        Estabelece conexão com o MetaTrader 5.
+        
+        Args:
+            login: Login da conta (se None, usa MT5_LOGIN do .env)
+            password: Senha da conta (se None, usa MT5_PASSWORD do .env)
+            server: Servidor (se None, usa MT5_SERVER do .env)
+            path: Caminho do MT5 (se None, usa MT5_PATH do .env)
+            
+        Returns:
+            True se conectado com sucesso
+            
+        Raises:
+            ValueError: Se credenciais estão ausentes
+            RuntimeError: Se falha na conexão
+        """
+        if self.mt5_connected:
+            self.logger.info("MT5 já está conectado")
+            return True
+        
+        # Usa parâmetros fornecidos ou variáveis de ambiente
+        login = login or os.getenv("MT5_LOGIN")
+        password = password or os.getenv("MT5_PASSWORD")
+        server = server or os.getenv("MT5_SERVER")
+        path = path or os.getenv("MT5_PATH")
+        
+        # Validações
+        if not all([login, password, server]):
+            missing = []
+            if not login: missing.append("MT5_LOGIN")
+            if not password: missing.append("MT5_PASSWORD") 
+            if not server: missing.append("MT5_SERVER")
+            
+            raise ValueError(
+                f"Credenciais MT5 ausentes: {', '.join(missing)}. "
+                "Configure no arquivo .env ou passe como parâmetros."
+            )
+        
+        try:
+            login = int(login)
+        except (ValueError, TypeError):
+            raise ValueError("Login deve ser um número inteiro")
+        
+        # Verifica se o executável existe
+        if path and not Path(path).exists():
+            self.logger.warning(f"Executável MT5 não encontrado em: {path}")
+            self.logger.info("Tentando inicializar sem caminho específico...")
+            path = None
+        
+        # Inicializa MT5
+        self.logger.info(f"Conectando ao MT5 - Login: {login} | Servidor: {server}")
+        
+        try:
+            if path:
+                success = mt5.initialize(path=path, login=login, password=password, server=server)
+            else:
+                success = mt5.initialize(login=login, password=password, server=server)
+            
+            if not success:
+                error = mt5.last_error()
+                raise RuntimeError(
+                    f"Falha ao conectar MT5 - Código: {error[0]}, Mensagem: {error[1]}"
+                )
+            
+            # Verifica informações da conta
+            account_info = mt5.account_info()
+            if account_info is None:
+                mt5.shutdown()
+                raise RuntimeError("Não foi possível obter informações da conta após conexão")
+            
+            self.mt5_connected = True
+            self.logger.info(f"✅ MT5 conectado com sucesso!")
+            self.logger.info(f"Conta: {account_info.login} | "
+                           f"Servidor: {account_info.server} | "
+                           f"Saldo: {account_info.balance:.2f}")
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Erro ao conectar MT5: {str(e)}")
+            raise
+    
+    def disconnect_mt5(self):
+        """Desconecta do MetaTrader 5."""
+        if self.mt5_connected:
+            mt5.shutdown()
+            self.mt5_connected = False
+            self.logger.info("MT5 desconectado")
+    
     def _validate_parameters(self):
         """Valida os parâmetros de inicialização."""
         if self.strategy_func is None:
@@ -71,6 +209,11 @@ class AlgoTrader:
         
         if self.tp <= 0 or self.sl <= 0:
             raise ValueError("Take Profit e Stop Loss devem ser valores positivos.")
+        
+        if not self.mt5_connected:
+            raise RuntimeError(
+                "MT5 não está conectado. Use connect_mt5() ou auto_connect=True"
+            )
     
     def start_trading(self, end_hour: int = 17, end_minute: int = 54):
         """
@@ -318,3 +461,11 @@ class AlgoTrader:
                 mt5.Close(self.symbol)
         
         self.position = 0
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit - desconecta automaticamente."""
+        self.disconnect_mt5()
