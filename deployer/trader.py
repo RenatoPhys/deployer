@@ -1,6 +1,6 @@
 """
 Módulo principal do trader para execução de estratégias de algo trading.
-Versão melhorada com inicialização automática do MT5.
+Versão com diagnóstico melhorado para erros de ordem.
 """
 
 import numpy as np
@@ -61,6 +61,7 @@ class AlgoTrader:
         self.trade_values = []
         self.quote_units = 0
         self.mt5_connected = False
+        self.symbol_info = None
         
         # Logger
         self.logger = setup_logger(f"AlgoTrader_{symbol}")
@@ -71,6 +72,7 @@ class AlgoTrader:
         # Conecta automaticamente se solicitado
         if auto_connect:
             self.connect_mt5()
+            self._initialize_symbol()
         
         # Validações
         self._validate_parameters()
@@ -192,6 +194,50 @@ class AlgoTrader:
             self.logger.error(f"Erro ao conectar MT5: {str(e)}")
             raise
     
+    def _initialize_symbol(self):
+        """Inicializa e valida o símbolo no MT5."""
+        # Verifica se o símbolo existe
+        symbols = mt5.symbols_get()
+        if not any(s.name == self.symbol for s in symbols):
+            available = [s.name for s in symbols if self.symbol[:3] in s.name][:5]
+            raise ValueError(
+                f"Símbolo '{self.symbol}' não encontrado. "
+                f"Símbolos similares: {available}"
+            )
+        
+        # Seleciona o símbolo
+        if not mt5.symbol_select(self.symbol, True):
+            raise RuntimeError(f"Não foi possível selecionar o símbolo {self.symbol}")
+        
+        # Obtém informações do símbolo
+        self.symbol_info = mt5.symbol_info(self.symbol)
+        if self.symbol_info is None:
+            raise RuntimeError(f"Não foi possível obter informações do símbolo {self.symbol}")
+        
+        # Log das informações importantes
+        self.logger.info(f"Símbolo {self.symbol} inicializado:")
+        self.logger.info(f"  - Spread atual: {self.symbol_info.spread}")
+        self.logger.info(f"  - Volume mín: {self.symbol_info.volume_min}")
+        self.logger.info(f"  - Volume máx: {self.symbol_info.volume_max}")
+        self.logger.info(f"  - Step volume: {self.symbol_info.volume_step}")
+        # Converte trade_mode para string legível
+        trade_modes = {
+            mt5.SYMBOL_TRADE_MODE_DISABLED: "Desabilitado",
+            mt5.SYMBOL_TRADE_MODE_LONGONLY: "Apenas Compra",
+            mt5.SYMBOL_TRADE_MODE_SHORTONLY: "Apenas Venda",
+            mt5.SYMBOL_TRADE_MODE_CLOSEONLY: "Apenas Fechamento",
+            mt5.SYMBOL_TRADE_MODE_FULL: "Completo"
+        }
+        trade_mode_str = trade_modes.get(self.symbol_info.trade_mode, "Desconhecido")
+        self.logger.info(f"  - Trade mode: {trade_mode_str}")
+        
+        # Validações importantes
+        if not self.symbol_info.visible:
+            self.logger.warning("Símbolo não está visível no Market Watch!")
+        
+        if self.symbol_info.trade_mode == mt5.SYMBOL_TRADE_MODE_DISABLED:
+            raise RuntimeError(f"Trading desabilitado para {self.symbol}")
+    
     def disconnect_mt5(self):
         """Desconecta do MetaTrader 5."""
         if self.mt5_connected:
@@ -214,6 +260,21 @@ class AlgoTrader:
             raise RuntimeError(
                 "MT5 não está conectado. Use connect_mt5() ou auto_connect=True"
             )
+        
+        # Valida volume
+        if self.symbol_info:
+            if self.lot_size < self.symbol_info.volume_min:
+                self.logger.warning(
+                    f"Volume {self.lot_size} menor que mínimo {self.symbol_info.volume_min}. "
+                    f"Ajustando para mínimo."
+                )
+                self.lot_size = self.symbol_info.volume_min
+            elif self.lot_size > self.symbol_info.volume_max:
+                self.logger.warning(
+                    f"Volume {self.lot_size} maior que máximo {self.symbol_info.volume_max}. "
+                    f"Ajustando para máximo."
+                )
+                self.lot_size = self.symbol_info.volume_max
     
     def start_trading(self, end_hour: int = 17, end_minute: int = 54):
         """
@@ -348,22 +409,38 @@ class AlgoTrader:
     def _execute_trades(self):
         """Executa trades baseado nas posições da estratégia."""
         new_position = self.prepared_data['position'].iloc[-1]
-        
-        # Só executa se houver mudança de posição
-        if new_position == self.position:
-            return
-        
-        # Fecha posição anterior se necessário
-        if self.position != 0:
-            self._close_position()
-        
+                       
         # Abre nova posição
         if new_position != 0:
             self._open_position(new_position)
     
+    def _get_filling_type(self):
+        """Determina o tipo de preenchimento correto para o símbolo."""
+        if self.symbol_info is None:
+            self.logger.warning("symbol_info é None, usando ORDER_FILLING_RETURN")
+            return mt5.ORDER_FILLING_RETURN
+        
+        filling = self.symbol_info.filling_mode
+        self.logger.debug(f"Filling mode do símbolo: {filling}")
+        
+        # Para mini-índice geralmente é ORDER_FILLING_RETURN (2)
+        # Se o filling_mode for 0 ou inválido, usa RETURN como padrão
+        if filling == 0:
+            self.logger.info("Filling mode é 0, usando ORDER_FILLING_RETURN como padrão")
+            return mt5.ORDER_FILLING_RETURN
+        
+        # Verifica os modos suportados usando valores numéricos
+        # FOK = 1, IOC = 2, RETURN = 3
+        if filling & 1:  # Fill or Kill
+            return mt5.ORDER_FILLING_FOK
+        elif filling & 2:  # Immediate or Cancel
+            return mt5.ORDER_FILLING_IOC
+        else:
+            return mt5.ORDER_FILLING_RETURN
+    
     def _open_position(self, position: int):
         """
-        Abre uma nova posição.
+        Abre uma nova posição com diagnóstico detalhado.
         
         Args:
             position: 1 para compra, -1 para venda
@@ -388,42 +465,128 @@ class AlgoTrader:
             tp_price = price - self.tp
             action_name = "VENDA"
         
+        # Ajusta precisão dos preços
+        digits = self.symbol_info.digits
+        price = round(price, digits)
+        sl_price = round(sl_price, digits)
+        tp_price = round(tp_price, digits)
+        
+        # Ajusta volume para step correto
+        volume_step = self.symbol_info.volume_step
+        adjusted_volume = round(self.lot_size / volume_step) * volume_step
+        
         # Monta requisição
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": self.symbol,
-            "volume": self.lot_size,
+            "volume": adjusted_volume,
             "type": order_type,
+            "price": price,
             "sl": sl_price,
             "tp": tp_price,
-            "deviation": 10,
+            "deviation": 20,
             "magic": self.magic_number,
             "comment": self.strategy_name,
-            "type_time": mt5.ORDER_TIME_DAY,
-            "type_filling": mt5.ORDER_FILLING_RETURN,
+            "type_time": mt5.ORDER_TIME_GTC,
+            "type_filling": self._get_filling_type(),
         }
+        
+        # Log detalhado antes de enviar
+        self.logger.info(f"Preparando ordem {action_name}:")
+        self.logger.info(f"  - Preço: {price}")
+        self.logger.info(f"  - Volume: {adjusted_volume} (ajustado de {self.lot_size})")
+        self.logger.info(f"  - SL: {sl_price} ({self.sl} pontos)")
+        self.logger.info(f"  - TP: {tp_price} ({self.tp} pontos)")
+        self.logger.info(f"  - Filling: {request['type_filling']}")
+        
+        # Verifica se pode enviar
+        check_result = mt5.order_check(request)
+        if check_result is None:
+            self.logger.error("order_check retornou None - possível problema de conexão")
+            return
+        
+        # Retcode 0 significa OK, pode prosseguir
+        if check_result.retcode != 0:
+            self.logger.error(f"Ordem rejeitada no check: {check_result.comment}")
+            self.logger.error(f"Retcode: {check_result.retcode}")
+            
+            # Diagnóstico adicional
+            if check_result.retcode == 10030:
+                self.logger.error("TRADE_RETCODE_INVALID_FILL - Tipo de preenchimento inválido")
+            elif check_result.retcode == 10015:
+                self.logger.error("TRADE_RETCODE_INVALID_PRICE - Preço inválido")
+            elif check_result.retcode == 10014:
+                self.logger.error("TRADE_RETCODE_INVALID_VOLUME - Volume inválido")
+            
+            return
         
         # Envia ordem
         result = mt5.order_send(request)
         
         if result is None:
-            self.logger.error("Falha ao enviar ordem: resultado nulo")
+            self.logger.error("order_send retornou None. Possíveis causas:")
+            self.logger.error("1. Símbolo não selecionado (use mt5.symbol_select)")
+            self.logger.error("2. Trading desabilitado para o símbolo")
+            self.logger.error("3. Mercado fechado")
+            self.logger.error("4. Conexão perdida")
+            
+            # Tenta diagnóstico adicional
+            last_error = mt5.last_error()
+            if last_error:
+                self.logger.error(f"Último erro MT5: {last_error}")
+            
             return
         
         if result.retcode != mt5.TRADE_RETCODE_DONE:
             self.logger.error(f"Ordem rejeitada: {result.comment}")
+            self.logger.error(f"Retcode: {result.retcode}")
+            
+            # Diagnóstico adicional baseado no retcode
+            error_codes = {
+                10004: "TRADE_RETCODE_REQUOTE - Requote, preços mudaram",
+                10006: "TRADE_RETCODE_REJECT - Ordem rejeitada",
+                10007: "TRADE_RETCODE_CANCEL - Ordem cancelada pelo trader",
+                10008: "TRADE_RETCODE_PLACED - Ordem colocada",
+                10009: "TRADE_RETCODE_DONE - Ordem executada",
+                10010: "TRADE_RETCODE_DONE_PARTIAL - Ordem parcialmente executada",
+                10011: "TRADE_RETCODE_ERROR - Erro no processamento",
+                10012: "TRADE_RETCODE_TIMEOUT - Timeout na execução",
+                10013: "TRADE_RETCODE_INVALID - Requisição inválida",
+                10014: "TRADE_RETCODE_INVALID_VOLUME - Volume inválido",
+                10015: "TRADE_RETCODE_INVALID_PRICE - Preço inválido",
+                10016: "TRADE_RETCODE_INVALID_STOPS - Stops inválidos",
+                10017: "TRADE_RETCODE_TRADE_DISABLED - Trading desabilitado",
+                10018: "TRADE_RETCODE_MARKET_CLOSED - Mercado fechado",
+                10019: "TRADE_RETCODE_NO_MONEY - Fundos insuficientes",
+                10020: "TRADE_RETCODE_PRICE_CHANGED - Preço mudou",
+                10021: "TRADE_RETCODE_PRICE_OFF - Sem cotações",
+                10022: "TRADE_RETCODE_INVALID_EXPIRATION - Expiração inválida",
+                10023: "TRADE_RETCODE_ORDER_CHANGED - Ordem mudou",
+                10024: "TRADE_RETCODE_TOO_MANY_REQUESTS - Muitas requisições",
+                10025: "TRADE_RETCODE_NO_CHANGES - Sem mudanças",
+                10026: "TRADE_RETCODE_SERVER_DISABLES_AT - Autotrading desabilitado pelo servidor",
+                10027: "TRADE_RETCODE_CLIENT_DISABLES_AT - Autotrading desabilitado pelo cliente",
+                10028: "TRADE_RETCODE_LOCKED - Requisição bloqueada",
+                10029: "TRADE_RETCODE_FROZEN - Ordem ou posição congelada",
+                10030: "TRADE_RETCODE_INVALID_FILL - Tipo de preenchimento inválido"
+            }
+            
+            if result.retcode in error_codes:
+                self.logger.error(f"Diagnóstico: {error_codes[result.retcode]}")
+            
             return
         
         # Atualiza estado
         self.position = position
         self.trades += 1
-        self.quote_units = self.lot_size * price
+        self.quote_units = adjusted_volume * price
         
-        # Registra trade
+        # Registra trade com sucesso
         self.logger.info(f"\n{'='*50}")
-        self.logger.info(f"{action_name} executada - {dt.datetime.now():%H:%M:%S}")
-        self.logger.info(f"Preço: {price:.2f} | Volume: {self.lot_size}")
-        self.logger.info(f"SL: {sl_price:.2f} | TP: {tp_price:.2f}")
+        self.logger.info(f"✅ {action_name} EXECUTADA - {dt.datetime.now():%H:%M:%S}")
+        self.logger.info(f"Ticket: {result.order}")
+        self.logger.info(f"Preço: {price:.{digits}f} | Volume: {adjusted_volume}")
+        self.logger.info(f"SL: {sl_price:.{digits}f} | TP: {tp_price:.{digits}f}")
         self.logger.info(f"{'='*50}\n")
         
         # Atualiza valores para cálculo de lucro
@@ -434,22 +597,32 @@ class AlgoTrader:
         positions = mt5.positions_get(symbol=self.symbol)
         
         for position in positions:
+            close_type = mt5.ORDER_TYPE_SELL if position.type == 0 else mt5.ORDER_TYPE_BUY
+            
             request = {
                 "action": mt5.TRADE_ACTION_DEAL,
                 "symbol": self.symbol,
                 "volume": position.volume,
-                "type": mt5.ORDER_TYPE_SELL if position.type == 0 else mt5.ORDER_TYPE_BUY,
+                "type": close_type,
                 "position": position.ticket,
-                "deviation": 10,
+                "deviation": 20,
                 "magic": self.magic_number,
                 "comment": f"Fechamento_{self.strategy_name}",
-                "type_time": mt5.ORDER_TIME_DAY,
-                "type_filling": mt5.ORDER_FILLING_RETURN,
+                "type_time": mt5.ORDER_TIME_GTC,
+                "type_filling": self._get_filling_type(),
             }
+            
+            # Adiciona preço para alguns tipos de filling
+            if request["type_filling"] == mt5.ORDER_FILLING_RETURN:
+                tick = mt5.symbol_info_tick(self.symbol)
+                if tick:
+                    request["price"] = tick.bid if close_type == mt5.ORDER_TYPE_SELL else tick.ask
             
             result = mt5.order_send(request)
             if result and result.retcode == mt5.TRADE_RETCODE_DONE:
-                self.logger.info(f"Posição fechada: {position.ticket}")
+                self.logger.info(f"✅ Posição fechada: {position.ticket}")
+            else:
+                self.logger.error(f"Erro ao fechar posição: {result.comment if result else 'None'}")
     
     def _close_all_positions(self):
         """Fecha todas as posições abertas do símbolo."""
@@ -458,7 +631,10 @@ class AlgoTrader:
         if positions:
             self.logger.info(f"Fechando {len(positions)} posições abertas")
             for position in positions:
-                mt5.Close(self.symbol)
+                # Usa método simplificado primeiro
+                if not mt5.Close(self.symbol):
+                    # Se falhar, tenta método detalhado
+                    self._close_position()
         
         self.position = 0
     
