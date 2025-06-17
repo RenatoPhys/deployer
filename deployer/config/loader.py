@@ -18,6 +18,7 @@ class StrategyConfig:
     hours: List[int]
     hour_params: Dict[int, Dict[str, Any]]
     lote: float
+    magic_number: int  # NOVO CAMPO ADICIONADO
 
 
 class ConfigLoader:
@@ -70,6 +71,7 @@ class ConfigLoader:
             hours=data['hours'],
             hour_params=hour_params,
             lote=data.get('lote', 1.0),
+            magic_number=data.get('magic_number', 2),  # NOVO: valor padrão = 2
         )
     
     @classmethod
@@ -91,6 +93,13 @@ class ConfigLoader:
         # Valida hours
         if not isinstance(config['hours'], list) or not config['hours']:
             raise ValueError("'hours' deve ser uma lista não vazia")
+        
+        # NOVO: Valida magic_number se presente
+        if 'magic_number' in config:
+            if not isinstance(config['magic_number'], int):
+                raise ValueError("'magic_number' deve ser um número inteiro")
+            if config['magic_number'] < 0:
+                raise ValueError("'magic_number' deve ser um número positivo")
         
         # Valida hour_params
         for hour in config['hours']:
@@ -174,5 +183,6 @@ class ConfigManager:
             'strategy': self.config.strategy,
             'trading_hours': sorted(self.config.hours),
             'lot_size': self.config.lote,
+            'magic_number': self.config.magic_number,  # NOVO
             'total_hours': len(self.config.hours)
         }

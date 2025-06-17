@@ -1,4 +1,3 @@
-# deployer/deploy.py
 """
 Sistema de deploy automatizado para estratégias de trading.
 Versão com importação dinâmica de estratégias.
@@ -59,6 +58,7 @@ class AutoDeployer:
         self.logger.info(f"Estratégia: {self.config.strategy}")
         self.logger.info(f"Símbolo: {self.config.symbol}")
         self.logger.info(f"Horas de trading: {sorted(self.config.hours)}")
+        self.logger.info(f"Magic Number: {self.config.magic_number}")  # NOVO: Log do magic number
     
     def _load_strategy(self) -> Callable:
         """
@@ -144,6 +144,7 @@ class AutoDeployer:
         self.logger.info(f"✅ Deploy realizado para {target_hour}h")
         self.logger.info(f"TP: {hour_params['tp']} | SL: {hour_params['sl']}")
         self.logger.info(f"Posição: {hour_params['position_type']}")
+        self.logger.info(f"Magic Number: {self.config.magic_number}")  # NOVO: Log do magic number
         
         return trader
     
@@ -185,6 +186,7 @@ class AutoDeployer:
             tp=tp,
             sl=sl,
             lot_size=self.config.lote,
+            magic_number=self.config.magic_number,  # MODIFICADO: usa magic_number da config
             env_path=self.env_path
         )
         
@@ -234,6 +236,7 @@ class AutoDeployer:
         """
         self.logger.info("=== INICIANDO TRADING DIÁRIO ===")
         self.logger.info(f"Horas configuradas: {sorted(self.config.hours)}")
+        self.logger.info(f"Magic Number: {self.config.magic_number}")  # NOVO: Log do magic number
         
         for hour in sorted(self.config.hours):
             self.logger.info(f"\n--- Preparando trading para {hour}h ---")
@@ -276,6 +279,7 @@ class AutoDeployer:
             "symbol": self.config.symbol,
             "timeframe": self.config.timeframe,
             "lot_size": self.config.lote,
+            "magic_number": self.config.magic_number,  # MODIFICADO: inclui magic_number
             "trading_hours": sorted(self.config.hours),
             "total_sessions": len(self.config.hours),
             "hour_configs": {
