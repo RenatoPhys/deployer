@@ -63,6 +63,9 @@ class AlgoTrader:
         self.mt5_connected = False
         self.symbol_info = None
         
+        # CORREÇÃO: Inicializa current_hour
+        self.current_hour = dt.datetime.now().hour
+        
         # Logger
         self.logger = setup_logger(f"AlgoTrader_{symbol}")
         
