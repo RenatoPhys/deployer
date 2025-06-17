@@ -1,38 +1,123 @@
 {
-    "symbol": "WIN@N",
+    "symbol": "WINM25",
     "timeframe": "t5",
     "strategy": "pattern_rsi_trend",
     "hours": [
+        9,
+        10,
         11,
-        20
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
     ],
     "hour_params": {
+        "9": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                9
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "10": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                10
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
         "11": {
-            "length_rsi": 9.0,
-            "rsi_low": 36.0,
-            "rsi_high": 76.0,
-            "position_type": "short",
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
             "allowed_hours": [
                 11
             ],
-            "tp": 1545.0,
-            "sl": 310.0
+            "tp": 1500.0,
+            "sl": 400.0
         },
-        "20": {
+        "12": {
             "length_rsi": 8.0,
-            "rsi_low": 39.0,
-            "rsi_high": 67.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
             "position_type": "both",
             "allowed_hours": [
                 12
             ],
-            "tp": 530.0,
-            "sl": 650.0
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "13": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                13
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "14": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                14
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "15": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                15
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "16": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                16
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
+        },
+        "17": {
+            "length_rsi": 8.0,
+            "rsi_low": 50.0,
+            "rsi_high": 50.0,
+            "position_type": "both",
+            "allowed_hours": [
+                17
+            ],
+            "tp": 1500.0,
+            "sl": 400.0
         }
     },
     "tc": 1.0,
     "lote": 1,
     "valor_lote": 0.2,
+    "magic_number": 52455,
     "optimize_metric": "sharpe_ratio",
     "direction": "maximize"
 }
