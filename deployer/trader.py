@@ -261,6 +261,7 @@ class AlgoTrader:
                 "MT5 não está conectado. Use connect_mt5() ou auto_connect=True"
             )
         
+    
         # Valida volume
         if self.symbol_info:
             if self.lot_size < self.symbol_info.volume_min:
@@ -275,6 +276,43 @@ class AlgoTrader:
                     f"Ajustando para máximo."
                 )
                 self.lot_size = self.symbol_info.volume_max
+    
+    def _check_and_update_params(self):
+        """Verifica se mudou a hora e atualiza parâmetros se necessário."""
+        current_hour = dt.datetime.now().hour
+        
+        # Se a hora não mudou, não faz nada
+        if current_hour == self.current_hour:
+            return False
+        
+        # Atualiza a hora atual
+        self.current_hour = current_hour
+        
+        # Se temos um config_manager, tentamos obter novos parâmetros
+        if hasattr(self, 'config_manager') and self.config_manager is not None:
+            hour_params = self.config_manager.get_current_hour_params(current_hour)
+            
+            if hour_params:
+                # Atualiza TP e SL
+                self.tp = hour_params.get('tp', self.tp)
+                self.sl = hour_params.get('sl', self.sl)
+                
+                # Atualiza parâmetros da estratégia
+                strategy_params = hour_params.copy()
+                strategy_params.pop('tp', None)
+                strategy_params.pop('sl', None)
+                self.strategy_params = strategy_params
+                
+                self.logger.info(f"🔄 Parâmetros atualizados para {current_hour}h:")
+                self.logger.info(f"   TP: {self.tp} | SL: {self.sl}")
+                self.logger.info(f"   Params: {self.strategy_params}")
+                
+                return True
+            else:
+                self.logger.info(f"⏸️  Hora {current_hour}h não tem trading configurado")
+        
+        return False
+    
     
     def start_trading(self, end_hour: int = 17, end_minute: int = 54):
         """
@@ -363,6 +401,7 @@ class AlgoTrader:
                     self._update_data(df)
                     self._process_strategy()
                     self._execute_trades()
+                    self._check_and_update_params()
                 
                 # Feedback visual
                 print(".", end="", flush=True)

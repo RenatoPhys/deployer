@@ -186,9 +186,12 @@ class AutoDeployer:
             tp=tp,
             sl=sl,
             lot_size=self.config.lote,
-            magic_number=self.config.magic_number,  # MODIFICADO: usa magic_number da config
+            magic_number=self.config.magic_number,
             env_path=self.env_path
         )
+        
+        # NOVA LINHA: Passa a referência do config_manager
+        trader.config_manager = self.config_manager
         
         return trader
     
